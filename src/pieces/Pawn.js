@@ -10,31 +10,36 @@ class Pawn extends Piece {
     getLegalMoves(boardState, currentPos) {
         const legalMoves = [];
         const direction = this.color === 'white' ? -1 : 1; // White moves up, Black moves down
-        const startRow = this.color === 'white' ? 6 : 1; // Starting rows for White and Black pawns
         const [row, col] = currentPos;
 
-        // Forward move
-        if (!boardState[row + direction][col]) {
+        // Forward move (one square)
+        if (boardState[row + direction] && boardState[row + direction][col].piece === null) {
             legalMoves.push([row + direction, col]);
-            // Two-square initial move
-            if (this.firstMove && !boardState[row + 2 * direction][col]) {
+
+            // Initial two-square move (only if the first move is also clear)
+            if (this.firstMove && boardState[row + 2 * direction][col].piece === null) {
                 legalMoves.push([row + 2 * direction, col]);
             }
         }
 
-        // Captures
-        const captures = [
-            [row + direction, col - 1], // Diagonal left
-            [row + direction, col + 1], // Diagonal right
-        ];
-        captures.forEach(([r, c]) => {
-            if (boardState[r] && boardState[r][c] && boardState[r][c].color !== this.color) {
-                legalMoves.push([r, c]);
+        // Diagonal captures
+        const diagonalOffsets = [-1, 1];
+        diagonalOffsets.forEach(offset => {
+            const diagRow = row + direction;
+            const diagCol = col + offset;
+            if (diagRow >= 0 && diagRow < 8 && diagCol >= 0 && diagCol < 8) {
+                const diagSquare = boardState[diagRow][diagCol];
+                if (diagSquare.piece && diagSquare.piece.color !== this.color) {
+                    legalMoves.push([diagRow, diagCol]);
+                }
             }
         });
 
         return legalMoves;
     }
+
+
+
 
     // Move pawn and update firstMove flag
     move(newPos) {

@@ -8,43 +8,44 @@ const Board = () => {
     // Initialize the board state with Pawns and colors
     const initialBoardState = Array(8).fill(null).map((_, rowIndex) =>
         Array(8).fill(null).map((_, colIndex) => {
+            // Assign the square color based on the position
+            const squareColor = (rowIndex + colIndex) % 2 === 0 ? 'light' : 'dark';
+
             if (rowIndex === 6) {
-                return new Pawn('white');
-            } else if (rowIndex === 1) { // Make sure this line is correct for placing black pawns
-                return new Pawn('black');
+                // Place a white pawn
+                return { piece: new Pawn('white'), color: squareColor };
+            } else if (rowIndex === 1) {
+                // Place a black pawn
+                return { piece: new Pawn('black'), color: squareColor };
             } else {
-                return (rowIndex + colIndex) % 2 === 0 ? 'light' : 'dark';
+                // Empty square
+                return { piece: null, color: squareColor };
             }
         })
     );
 
+
     const [boardState, setBoardState] = useState(initialBoardState);
 
-    // Function to handle square clicks
     const handleSquareClick = (rowIndex, colIndex) => {
-        const squareContent = boardState[rowIndex][colIndex];
-        if (squareContent instanceof Pawn) { // Check if the square contains a pawn
-            const legalMoves = squareContent.getLegalMoves(boardState, [rowIndex, colIndex]);
+        const square = boardState[rowIndex][colIndex];
+        if (square.piece instanceof Pawn) {
+            const legalMoves = square.piece.getLegalMoves(boardState, [rowIndex, colIndex]);
             console.log(`Legal moves for pawn at [${rowIndex}, ${colIndex}]:`, legalMoves);
         }
     };
 
-    // Function to render a square
     const renderSquare = (rowIndex, colIndex) => {
-        const squareContent = boardState[rowIndex][colIndex];
-        // Determine the square's color based on its position, not its content
-        const squareColor = (rowIndex + colIndex) % 2 === 0 ? 'light' : 'dark';
-
+        const square = boardState[rowIndex][colIndex];
         return (
             <Square
                 key={`${rowIndex}-${colIndex}`}
-                colour={squareColor} // Pass the correct color based on position
+                colour={square.color}
                 onClick={() => handleSquareClick(rowIndex, colIndex)}
             >
-                {/* Render the pawn's Unicode character if there's a pawn */}
-                {squareContent instanceof Pawn ? (
+                {square.piece ? (
                     <span className="chess-piece">
-                    {squareContent.getIcon()}
+                    {square.piece.getIcon()}
                 </span>
                 ) : ''}
             </Square>
