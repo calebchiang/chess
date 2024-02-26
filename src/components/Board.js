@@ -43,43 +43,66 @@ const Board = () => {
     const [boardState, setBoardState] = useState(initialBoardState);
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [highlightedSquares, setHighlightedSquares] = useState([]);
+    const [currentPlayer, setCurrentPlayer] = useState('white');
+
 
     const handleSquareClick = (rowIndex, colIndex) => {
         console.log(`Square clicked at [${rowIndex}, ${colIndex}]`);
         const square = boardState[rowIndex][colIndex];
-        if (square.piece && (selectedPiece === null || square.piece.color !== selectedPiece.piece.color)) {
-            // Highlight legal moves for the selected piece
+
+        console.log(`Current player: ${currentPlayer}`);
+        console.log(`Piece at clicked square: `, square.piece ? square.piece.color : "none");
+
+        // This check is for when a piece is already selected and a legal move is clicked.
+        if (selectedPiece && highlightedSquares.some(([r, c]) => r === rowIndex && c === colIndex)) {
+            console.log(`Executing move from [${selectedPiece.position}] to [${rowIndex}, ${colIndex}]`);
+            executeMove(selectedPiece.position, [rowIndex, colIndex]);
+            // Assuming togglePlayer is correctly called within executeMove, so it's not needed here.
+        }
+        // Check if it's the current player's piece and either select it or show legal moves.
+        else if (square.piece && square.piece.color === currentPlayer) {
+            console.log(`It's ${currentPlayer}'s turn and they clicked on their ${square.piece.color} piece.`);
             const legalMoves = square.piece.getLegalMoves(boardState, [rowIndex, colIndex]);
+            console.log(`Setting legal moves for selected piece:`, legalMoves);
             setHighlightedSquares(legalMoves);
             setSelectedPiece({ piece: square.piece, position: [rowIndex, colIndex] });
-        } else if (selectedPiece && highlightedSquares.some(([r, c]) => r === rowIndex && c === colIndex)) {
-            // Move the piece if the clicked square is a highlighted legal move
-            executeMove(selectedPiece.position, [rowIndex, colIndex]);
         } else {
-            // Clear selection if clicking on an empty square or a square with a piece of the same color
-            setHighlightedSquares([]); // Clear highlighted squares
-            setSelectedPiece(null); // Deselect any selected piece
+            // Clear selection if clicking on an empty square or an opponent's piece without making a move
+            console.log("Clicked on an empty square or an opponent's piece. Clearing selections.");
+            setHighlightedSquares([]);
+            setSelectedPiece(null);
         }
     };
 
+
+    const togglePlayer = () => {
+        setCurrentPlayer(currentPlayer === 'white' ? 'black' : 'white');
+    };
+
+
     const executeMove = (fromPos, toPos) => {
-        const newBoardState = [...boardState];
+        const newBoardState = boardState.map(row => row.map(cell => ({...cell})));
         const [fromRow, fromCol] = fromPos;
         const [toRow, toCol] = toPos;
+
         const movedPiece = newBoardState[fromRow][fromCol].piece;
 
-        // Move piece to the new position
-        newBoardState[toRow][toCol] = { ...newBoardState[toRow][toCol], piece: movedPiece };
-        // Remove piece from the old position
-        newBoardState[fromRow][fromCol] = { ...newBoardState[fromRow][fromCol], piece: null };
+        // Update the firstMove property if the piece is a Pawn
+        if (movedPiece instanceof Pawn) {
+            movedPiece.move([toRow, toCol]); // This will set firstMove to false
+        }
 
-        // Update state
+        newBoardState[toRow][toCol].piece = movedPiece;
+        newBoardState[fromRow][fromCol].piece = null;
+
         setBoardState(newBoardState);
         setHighlightedSquares([]);
         setSelectedPiece(null);
 
-        // Additional logic here for special moves, checks, etc.
+        togglePlayer();
     };
+
+
 
 
     const renderSquare = (rowIndex, colIndex) => {
