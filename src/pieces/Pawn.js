@@ -38,13 +38,10 @@ class Pawn extends Piece {
         return legalMoves;
     }
 
-
-
-
     // Move pawn and update firstMove flag
     move(newPos) {
         this.firstMove = false; // The pawn has now moved
-        // Update the pawn's position logic here...
+
     }
 }
 
