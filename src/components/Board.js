@@ -8,6 +8,7 @@ import Queen from '../pieces/Queen.js';
 import King from '../pieces/King.js';
 import '../styles/Board.css';
 import '../styles/Piece.css';
+
 const Board = () => {
     const initialBoardState = Array(8).fill(null).map((_, rowIndex) =>
         Array(8).fill(null).map((_, colIndex) => {
@@ -40,28 +41,62 @@ const Board = () => {
     );
 
     const [boardState, setBoardState] = useState(initialBoardState);
+    const [selectedPiece, setSelectedPiece] = useState(null);
+    const [highlightedSquares, setHighlightedSquares] = useState([]);
 
     const handleSquareClick = (rowIndex, colIndex) => {
+        console.log(`Square clicked at [${rowIndex}, ${colIndex}]`);
         const square = boardState[rowIndex][colIndex];
-        if (square.piece) {
-            // Call getLegalMoves for the piece and log the result
+        if (square.piece && (selectedPiece === null || square.piece.color !== selectedPiece.piece.color)) {
+            // Highlight legal moves for the selected piece
             const legalMoves = square.piece.getLegalMoves(boardState, [rowIndex, colIndex]);
-            console.log(`Legal moves for ${square.piece.constructor.name} at [${rowIndex}, ${colIndex}]:`, legalMoves);
+            setHighlightedSquares(legalMoves);
+            setSelectedPiece({ piece: square.piece, position: [rowIndex, colIndex] });
+        } else if (selectedPiece && highlightedSquares.some(([r, c]) => r === rowIndex && c === colIndex)) {
+            // Move the piece if the clicked square is a highlighted legal move
+            executeMove(selectedPiece.position, [rowIndex, colIndex]);
+        } else {
+            // Clear selection if clicking on an empty square or a square with a piece of the same color
+            setHighlightedSquares([]); // Clear highlighted squares
+            setSelectedPiece(null); // Deselect any selected piece
         }
     };
 
+    const executeMove = (fromPos, toPos) => {
+        const newBoardState = [...boardState];
+        const [fromRow, fromCol] = fromPos;
+        const [toRow, toCol] = toPos;
+        const movedPiece = newBoardState[fromRow][fromCol].piece;
+
+        // Move piece to the new position
+        newBoardState[toRow][toCol] = { ...newBoardState[toRow][toCol], piece: movedPiece };
+        // Remove piece from the old position
+        newBoardState[fromRow][fromCol] = { ...newBoardState[fromRow][fromCol], piece: null };
+
+        // Update state
+        setBoardState(newBoardState);
+        setHighlightedSquares([]);
+        setSelectedPiece(null);
+
+        // Additional logic here for special moves, checks, etc.
+    };
+
+
     const renderSquare = (rowIndex, colIndex) => {
         const square = boardState[rowIndex][colIndex];
+        const isHighlighted = highlightedSquares.some(([r, c]) => r === rowIndex && c === colIndex);
+
         return (
             <Square
                 key={`${rowIndex}-${colIndex}`}
                 colour={square.color}
                 onClick={() => handleSquareClick(rowIndex, colIndex)}
+                highlighted={isHighlighted} // Pass this prop to your Square component
             >
                 {square.piece ? (
                     <span className="chess-piece">
-                        {square.piece.getIcon()}
-                    </span>
+                    {square.piece.getIcon()}
+                </span>
                 ) : ''}
             </Square>
         );

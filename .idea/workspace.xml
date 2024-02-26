@@ -5,14 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e22df249-2a62-4ce1-98ef-9b51024ecc7c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/pieces/Bishop.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pieces/King.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pieces/Knight.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pieces/Queen.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pieces/Rook.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/Board.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Board.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pieces/Pawn.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pieces/Pawn.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Square.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Square.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/Square.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/Square.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +52,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1708893615981</updated>
-      <workItem from="1708893621999" duration="7136000" />
+      <workItem from="1708893621999" duration="8113000" />
     </task>
     <servers />
   </component>
