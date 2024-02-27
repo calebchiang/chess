@@ -7,7 +7,7 @@ This project is a simple implementation of a chess game using HTML, CSS, and Jav
 - A visually appealing 8x8 chessboard
 - Alternating light and dark squares
 - Pawn promotion
-
+- Check logic
 
 ## Getting Started
 

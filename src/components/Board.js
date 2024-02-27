@@ -6,6 +6,8 @@ import Knight from '../pieces/Knight.js';
 import Bishop from '../pieces/Bishop.js';
 import Queen from '../pieces/Queen.js';
 import King from '../pieces/King.js';
+import { Game } from './Game';
+
 import '../styles/Board.css';
 import '../styles/Piece.css';
 import { PawnPromotionOptions, handlePromotionChoice } from './PawnPromotion';
@@ -56,7 +58,6 @@ const Board = () => {
         // This check is for when a piece is already selected and a legal move is clicked.
         if (selectedPiece && highlightedSquares.some(([r, c]) => r === rowIndex && c === colIndex)) {
             executeMove(selectedPiece.position, [rowIndex, colIndex]);
-            // Assuming togglePlayer is correctly called within executeMove, so it's not needed here.
         }
         // Check if it's the current player's piece and either select it or show legal moves.
         else if (square.piece && square.piece.color === currentPlayer) {
@@ -70,18 +71,27 @@ const Board = () => {
         }
     };
 
-
     const togglePlayer = () => {
         setCurrentPlayer(currentPlayer === 'white' ? 'black' : 'white');
     };
-
 
     const executeMove = (fromPos, toPos) => {
         const newBoardState = boardState.map(row => row.map(cell => ({ ...cell })));
         const [fromRow, fromCol] = fromPos;
         const [toRow, toCol] = toPos;
-
         const movedPiece = newBoardState[fromRow][fromCol].piece;
+        newBoardState[toRow][toCol].piece = movedPiece;
+        newBoardState[fromRow][fromCol].piece = null;
+
+        // Create a Game instance to check if the move puts the king in check
+        const game = new Game(newBoardState);
+        if (game.isKingInCheck(currentPlayer)) {
+            // If in check, do not execute the move. You might want to alert the user.
+            alert("Cannot make this move, king would be in check.");
+            newBoardState[fromRow][fromCol].piece = movedPiece;
+            newBoardState[toRow][toCol].piece = boardState[toRow][toCol].piece;
+            return;
+        }
 
         // Handle capturing logic
         if (newBoardState[toRow][toCol].piece) {
@@ -98,7 +108,6 @@ const Board = () => {
 
         // If it's a pawn reaching the promotion rank
         if (movedPiece instanceof Pawn && ((movedPiece.color === 'white' && toRow === 0) || (movedPiece.color === 'black' && toRow === 7))) {
-            // Trigger pawn promotion logic
             setPawnPromotion({ fromPos: [fromRow, fromCol], toPos: [toRow, toCol], color: movedPiece.color });
         } else {
             // Update the firstMove flag for pawns
@@ -152,7 +161,6 @@ const Board = () => {
             )}
         </div>
     );
-
 
 };
 
