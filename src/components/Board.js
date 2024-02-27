@@ -13,6 +13,7 @@ import '../styles/Piece.css';
 import { PawnPromotionOptions, handlePromotionChoice } from './PawnPromotion';
 
 const Board = () => {
+
     const initialBoardState = Array(8).fill(null).map((_, rowIndex) =>
         Array(8).fill(null).map((_, colIndex) => {
             const squareColor = (rowIndex + colIndex) % 2 === 0 ? 'light' : 'dark';
@@ -80,20 +81,9 @@ const Board = () => {
         const [fromRow, fromCol] = fromPos;
         const [toRow, toCol] = toPos;
         const movedPiece = newBoardState[fromRow][fromCol].piece;
-        newBoardState[toRow][toCol].piece = movedPiece;
-        newBoardState[fromRow][fromCol].piece = null;
 
-        // Create a Game instance to check if the move puts the king in check
-        const game = new Game(newBoardState);
-        if (game.isKingInCheck(currentPlayer)) {
-            // If in check, do not execute the move. You might want to alert the user.
-            alert("Cannot make this move, king would be in check.");
-            newBoardState[fromRow][fromCol].piece = movedPiece;
-            newBoardState[toRow][toCol].piece = boardState[toRow][toCol].piece;
-            return;
-        }
-
-        // Handle capturing logic
+        // Check for and handle capturing
+        // Note: Since we're creating a new game instance later, we assume capturing is handled before moving the piece.
         if (newBoardState[toRow][toCol].piece) {
             const capturedPiece = newBoardState[toRow][toCol].piece;
             setCapturedPieces(prev => ({
@@ -102,9 +92,18 @@ const Board = () => {
             }));
         }
 
-        // Move the piece to the target square
+        // Execute the move
         newBoardState[toRow][toCol].piece = movedPiece;
         newBoardState[fromRow][fromCol].piece = null;
+
+        // Create a new game instance to check for checks and checkmates
+        const game = new Game(newBoardState);
+
+        // Check if the move puts the current player's king in check
+        if (game.isKingInCheck(currentPlayer)) {
+            alert("Cannot make this move, king would be in check.");
+            return; // Invalid move, revert it.
+        }
 
         // If it's a pawn reaching the promotion rank
         if (movedPiece instanceof Pawn && ((movedPiece.color === 'white' && toRow === 0) || (movedPiece.color === 'black' && toRow === 7))) {
@@ -114,15 +113,28 @@ const Board = () => {
             if (movedPiece instanceof Pawn) {
                 movedPiece.firstMove = false;
             }
-            // Toggle the player if no promotion is pending
+
+            // Apply the updated board state and clear selections
+            setBoardState(newBoardState);
+            setHighlightedSquares([]);
+            setSelectedPiece(null);
+
+            if (game.isCheckmate(opponent(currentPlayer))) {
+                // Use setTimeout to delay the alert until after the UI has updated
+                setTimeout(() => {
+                    alert(`${currentPlayer} wins by checkmate!`);
+                }, 100); // 100 milliseconds delay
+                return;
+            }
+
             togglePlayer();
         }
 
-        // Apply the updated board state and clear selections
-        setBoardState(newBoardState);
-        setHighlightedSquares([]);
-        setSelectedPiece(null);
     };
+
+    function opponent(player) {
+        return player === 'white' ? 'black' : 'white';
+    }
 
 
 
