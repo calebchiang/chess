@@ -8,6 +8,7 @@ import Queen from '../pieces/Queen.js';
 import King from '../pieces/King.js';
 import '../styles/Board.css';
 import '../styles/Piece.css';
+import { PawnPromotionOptions, handlePromotionChoice } from './PawnPromotion';
 
 const Board = () => {
     const initialBoardState = Array(8).fill(null).map((_, rowIndex) =>
@@ -44,31 +45,26 @@ const Board = () => {
     const [selectedPiece, setSelectedPiece] = useState(null);
     const [highlightedSquares, setHighlightedSquares] = useState([]);
     const [currentPlayer, setCurrentPlayer] = useState('white');
+    const [capturedPieces, setCapturedPieces] = useState({ white: [], black: [] });
+    const [pawnPromotion, setPawnPromotion] = useState(null);
 
 
     const handleSquareClick = (rowIndex, colIndex) => {
         console.log(`Square clicked at [${rowIndex}, ${colIndex}]`);
         const square = boardState[rowIndex][colIndex];
 
-        console.log(`Current player: ${currentPlayer}`);
-        console.log(`Piece at clicked square: `, square.piece ? square.piece.color : "none");
-
         // This check is for when a piece is already selected and a legal move is clicked.
         if (selectedPiece && highlightedSquares.some(([r, c]) => r === rowIndex && c === colIndex)) {
-            console.log(`Executing move from [${selectedPiece.position}] to [${rowIndex}, ${colIndex}]`);
             executeMove(selectedPiece.position, [rowIndex, colIndex]);
             // Assuming togglePlayer is correctly called within executeMove, so it's not needed here.
         }
         // Check if it's the current player's piece and either select it or show legal moves.
         else if (square.piece && square.piece.color === currentPlayer) {
-            console.log(`It's ${currentPlayer}'s turn and they clicked on their ${square.piece.color} piece.`);
             const legalMoves = square.piece.getLegalMoves(boardState, [rowIndex, colIndex]);
-            console.log(`Setting legal moves for selected piece:`, legalMoves);
             setHighlightedSquares(legalMoves);
             setSelectedPiece({ piece: square.piece, position: [rowIndex, colIndex] });
         } else {
             // Clear selection if clicking on an empty square or an opponent's piece without making a move
-            console.log("Clicked on an empty square or an opponent's piece. Clearing selections.");
             setHighlightedSquares([]);
             setSelectedPiece(null);
         }
@@ -81,27 +77,43 @@ const Board = () => {
 
 
     const executeMove = (fromPos, toPos) => {
-        const newBoardState = boardState.map(row => row.map(cell => ({...cell})));
+        const newBoardState = boardState.map(row => row.map(cell => ({ ...cell })));
         const [fromRow, fromCol] = fromPos;
         const [toRow, toCol] = toPos;
 
         const movedPiece = newBoardState[fromRow][fromCol].piece;
 
-        // Update the firstMove property if the piece is a Pawn
-        if (movedPiece instanceof Pawn) {
-            movedPiece.move([toRow, toCol]); // This will set firstMove to false
+        // Handle capturing logic
+        if (newBoardState[toRow][toCol].piece) {
+            const capturedPiece = newBoardState[toRow][toCol].piece;
+            setCapturedPieces(prev => ({
+                ...prev,
+                [capturedPiece.color]: [...prev[capturedPiece.color], capturedPiece]
+            }));
         }
 
+        // Move the piece to the target square
         newBoardState[toRow][toCol].piece = movedPiece;
         newBoardState[fromRow][fromCol].piece = null;
 
+        // If it's a pawn reaching the promotion rank
+        if (movedPiece instanceof Pawn && ((movedPiece.color === 'white' && toRow === 0) || (movedPiece.color === 'black' && toRow === 7))) {
+            // Trigger pawn promotion logic
+            setPawnPromotion({ fromPos: [fromRow, fromCol], toPos: [toRow, toCol], color: movedPiece.color });
+        } else {
+            // Update the firstMove flag for pawns
+            if (movedPiece instanceof Pawn) {
+                movedPiece.firstMove = false;
+            }
+            // Toggle the player if no promotion is pending
+            togglePlayer();
+        }
+
+        // Apply the updated board state and clear selections
         setBoardState(newBoardState);
         setHighlightedSquares([]);
         setSelectedPiece(null);
-
-        togglePlayer();
     };
-
 
 
 
@@ -131,8 +143,17 @@ const Board = () => {
             {boardState.map((row, rowIndex) =>
                 row.map((_, colIndex) => renderSquare(rowIndex, colIndex))
             )}
+            {pawnPromotion && (
+                <PawnPromotionOptions
+                    onPromote={(choice) =>
+                        handlePromotionChoice(choice, pawnPromotion, setBoardState, boardState, setPawnPromotion, togglePlayer)
+                    }
+                />
+            )}
         </div>
     );
+
+
 };
 
 export default Board;
