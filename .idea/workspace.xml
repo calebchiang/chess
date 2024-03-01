@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e22df249-2a62-4ce1-98ef-9b51024ecc7c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Board.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Board.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Game.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Game.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,13 +49,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="javascript_chess" />
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -69,7 +61,10 @@
       <workItem from="1708893621999" duration="12605000" />
       <workItem from="1708994890375" duration="51000" />
       <workItem from="1708994947470" duration="77000" />
-      <workItem from="1708995030222" duration="6198000" />
+      <workItem from="1708995030222" duration="6252000" />
+      <workItem from="1709010296287" duration="139000" />
+      <workItem from="1709010921073" duration="111000" />
+      <workItem from="1709335719858" duration="185000" />
     </task>
     <servers />
   </component>
